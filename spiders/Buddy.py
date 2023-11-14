@@ -24,15 +24,14 @@ class Buddy(CrawlSpider):
     """
     def parse_get_years(self, response): # take the page
         table_entries = response.css('table')[0].css('tr') # get the first table on the page, then get all <tr> objects from the table
-        
-        def model_year(entry):
+        model_years = [] 
+        for entry in table_entries:# iterate thru all the <tr> tags on the page
             for c in entry.css('th + td ::text'): # look at the text of each <td> that is next to a <th>
                 if ('Model year' in entry.xpath('th/a/@title').extract()): # if the <th> next to it says 'Model year', 
-                    return(c) # take the text from <td>
+                    model_years.append(c) # take the text from <td>
                 elif ('Production' in entry.xpath('th/text()').extract()): 
-                    return(c)
-                
-        model_years = [model_year(entry) for entry in table_entries] # iterate thru all the <tr> tags on the page
+                    model_years.append(c)
+            
         
         model_years = model_years[0].extract() # get the text
         model_years = model_years.replace('\u2013', '-') # some dashes were encoded as '\u2013' even when setting 'FEED_EXPORT_ENCODING': 'utf-8',
